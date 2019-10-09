@@ -53,10 +53,10 @@ def link_search(link):
     sims2= tuple(sims1)
     conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, sslmode='require')
     cur = conn.cursor()
-    sql="SELECT link,title,art_id FROM " + lang + "_arts WHERE art_id IN %s"
+    sql="SELECT link,title,art_id,dt FROM " + lang + "_arts WHERE art_id IN %s"
     cur.execute(sql,(sims2,))
     recs = cur.fetchall()
-    dictrecs = [{'link':x[0],'title':x[1],'art_id':x[2]} for x in recs]
+    dictrecs = [{'link':x[0],'title':x[1],'art_id':x[2],'date':x[3]} for x in recs]
     conn.close()
     payload = {'recs':dictrecs,'link':link,'title':title,'trans_lang':lang,'langt':langt}
     resp=json.dumps(payload)
