@@ -22,7 +22,7 @@ jmespath==0.9.4
 jsonschema==3.0.1
 lxml==4.3.2
 MarkupSafe==1.1.1
-nltk==3.4
+nltk==3.4.5
 numpy==1.17.0
 pandas==0.24.1
 psycopg2==2.7.7
