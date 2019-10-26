@@ -9,7 +9,7 @@ import requests
 from stop_words import get_stop_words
 import psycopg2
 
-lang = 'fr'
+lang = 'de'
 
 dbname=os.environ['PGCONNECT_DBNAME']
 user=os.environ['PGCONNECT_USER']

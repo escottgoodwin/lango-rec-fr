@@ -61,8 +61,15 @@ def art_parser(link):
     paras = soup('p')
     if soup.title is None:
         prep_art = ''
+<<<<<<< HEAD
         return prep_art
     else:
+=======
+        title = ''
+        return prep_art
+    else:
+        title = soup.title.string
+>>>>>>> 200bfbd2ee6db9f74b09f55547f5971e2299aee9
         atriclestrip = [art.get_text() for art in paras]
         prep_art = ' '.join(atriclestrip)
         return prep_art
@@ -102,6 +109,10 @@ def cluster_articles(articles,vecs,clust_num):
 def popular_clusters(cluster_grps,percent):
     sorted_clusters= sorted(cluster_grps, key=len,reverse=True)
     pop_length = int(len(cluster_grps)*percent)
+<<<<<<< HEAD
+=======
+    pop_clusters = sorted_clusters[:pop_length]
+>>>>>>> 200bfbd2ee6db9f74b09f55547f5971e2299aee9
     return sorted_clusters[:pop_length]
 
 def pop_clust_output(sorted_clusters):
@@ -190,11 +201,19 @@ def main():
     uid = sys.argv[2]
     clust_num=15
     percent=.33
+<<<<<<< HEAD
 
     print('generating recs for userid:' + uid + ' native: '+ native_lang)
 
     generation_times = cluster(native_lang,uid,clust_num,percent)
     print(generation_times)
+=======
+    rec_num=20 
+
+    print('generating recs for userid:' + uid + ' native: '+ native_lang)
+
+    generation_times = cluster(native_lang,uid,clust_num,percent,rec_num)
+>>>>>>> 200bfbd2ee6db9f74b09f55547f5971e2299aee9
 
 if __name__ == '__main__':
     main()
