@@ -15,7 +15,7 @@ def list_routes():
 @application.route("/")
 def routes():
     routelinks = list_routes()
-    html = "<h1 style='color:blue'>German Routes</h1>"
+    html = "<h1 style='color:blue'>French Routes</h1>"
     for link in routelinks:
         html += '<P><H3>'+link+'</H3></P>'
     
