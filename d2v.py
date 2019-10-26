@@ -56,7 +56,7 @@ def link_search(link):
     sql="SELECT link,title,art_id,dt FROM " + lang + "_arts WHERE art_id IN %s"
     cur.execute(sql,(sims2,))
     recs = cur.fetchall()
-    dictrecs = [{'link':x[0],'title':x[1],'art_id':x[2],'date':x[3]} for x in recs]
+    dictrecs = [{'link':x[0],'title':x[1],'art_id':x[2],'date':str(x[3])} for x in recs]
     conn.close()
     payload = {'recs':dictrecs,'link':link,'title':title,'trans_lang':lang,'langt':langt}
     resp=json.dumps(payload)
