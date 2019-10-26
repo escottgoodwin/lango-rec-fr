@@ -42,7 +42,12 @@ def trans_vec_centers(cluster, trans_lang_model, trans_lang):
 
 def get_recs(vec_centers,lang_model,rec_num):
     recs = [lang_model.docvecs.most_similar([vec_centers[i]], topn=rec_num) for i, x in enumerate(vec_centers)]
-    return [[x[0] for x in rec] for rec in recs]
+    recs_flat = [y for x in recs for y in x]
+    rec_ids = [x[0] for x in recs_flat]
+    print(len(rec_ids))
+    recs_final = list(dict.fromkeys(rec_ids))
+    print(len(recs_final))
+    return recs_final
 
 def store_recs(uid, recs, trans_lang, cluster):
     now = datetime.datetime.now()
@@ -51,6 +56,17 @@ def store_recs(uid, recs, trans_lang, cluster):
     for art_id in recs:
         data = (uid, art_id, now, trans_lang, cluster)
         query = 'INSERT INTO recommendations (uid, art_id, rec_date, lang, cluster_num) VALUES (%s,%s,%s,%s,%s)'
+        conn.commit()
+        cur.execute(query,data)
+    conn.close()
+
+def store_recs_flat(uid, recs, trans_lang):
+    now = datetime.datetime.now()
+    conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, sslmode='require')
+    cur = conn.cursor() 
+    for art_id in recs:
+        data = (uid, art_id, now, trans_lang)
+        query = 'INSERT INTO recommendations (uid, art_id, rec_date, lang) VALUES (%s,%s,%s,%s)'
         conn.commit()
         cur.execute(query,data)
     conn.close()
@@ -75,12 +91,10 @@ def generate_recs(pop_clusters,uid, trans_lang, rec_num):
     t17=datetime.datetime.now()
     trans_recs = 'get trans lang recs' + str(t17-t16)
     print(trans_recs)
-
     t18=datetime.datetime.now()
-    for i,recs in enumerate(recs):
-        store_recs(uid, recs, trans_lang, i)
     
     t19=datetime.datetime.now()
+    store_recs_flat(uid, recs, trans_lang)
     store_recs1='store recs' + str(t19-t18)
     print(store_recs1)
     total='total time'+str(t19-t0)
@@ -95,6 +109,23 @@ def generate_recs(pop_clusters,uid, trans_lang, rec_num):
     }
     return generation_times
 
+def cluster_arts(native_lang,uid,clust_num,percent):
+
+    cluster_link = f'https://lango-rec-{native_lang}-v26nfpfxqq-uc.a.run.app/cluster'
+
+    try:
+        cluster = requests.post(cluster_link, json={
+                "native_lang": native_lang,
+                "uid":uid,
+                "clust_num":clust_num,
+                "percent":percent
+            })
+        pop_clusters=cluster.json()
+        print(len(pop_clusters[0]))
+        return pop_clusters
+    except:
+        print('error')
+
 def main():
 
     native_lang = sys.argv[1]
@@ -103,29 +134,12 @@ def main():
     clust_num=15
     percent=.33
     rec_num=20 
-    
+
     print('generating recs for userid:' + uid + ' trans: '+ trans_lang)
 
-    cluster_link = f'https://lango-cluster-{native_lang}-{cloud_link}-uc.a.run.app/get_recs'
-
-    try:
-        response = requests.post(cluster_link, json={
-            "native_lang": native_lang,
-            "uid":uid,
-            "clust_num":clust_num,
-            "percent":percent
-        })
-        pop_clusters=response.json()
-        generation_times = generate_recs(pop_clusters,uid, trans_lang, rec_num)
-
-        print(generation_times)
-        
-    except HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')  
-    except Exception as err:
-        print(f'Other error occurred: {err}') 
-    else:
-        print('Success!')
+    pop_clusters = cluster_arts(native_lang,uid,clust_num,percent)
+    generation_times = generate_recs(pop_clusters, uid, trans_lang, rec_num)
+    print(generation_times)
 
 if __name__ == '__main__':
     main()
